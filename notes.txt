@@ -1,0 +1,324 @@
+F1 Elements - deleted from "react-intro-72"
+
+src>components>RacerDetail.js
+
+import React, { Component } from 'react'
+
+export default class RacerDetail extends Component {
+    render() {
+        const racer = this.props.racer
+        return (
+            <tr>
+                <td>{racer.position}</td>
+                <td>{racer.points}</td>
+                <td>{racer.wins}</td>
+                <td>{racer.Driver.givenName}</td>
+                <td>{racer.Driver.familyName}</td>
+                <td>{racer.Driver.nationality}</td>
+                <td>{racer.Constructors[0].name}</td>
+            </tr>
+        )
+    }
+}
+
+
+----------------------------------------------------------------------------------
+
+...>RacerForm.js
+import React from 'react';
+
+
+export const RacerForm = (props) =>{
+    return (
+        <form onSubmit={props.handleForm}>
+            <div className='form-group'>
+                <div className='row'>
+                    <div className='col-12 col-sm-6'>
+                        <input type='text' className='form-control' id='season' placeholder='Season'/>
+                    </div>
+                    <div className='col-12 col-sm-6'>
+                        <input type='text' className='form-control' id='round' placeholder='Round'/>
+                    </div>
+                </div>
+                <div className='row'>
+                    <input type='submit' className='btn btn-danger mx-3' />
+                </div>
+            </div>
+        </form>
+    )
+}
+--------------------------------------------------------------------------------
+
+...> PostCard.js
+
+import React from 'react';
+import { Link } from 'react-router-dom';
+
+
+export const PostCard = (props) =>{
+    const post = props.post
+    const dateCreated = new Date(post.date_created)
+    const fullName = post.user.first_name + ' ' + post.user.last_name
+    return (
+        <div key={post.id} className="card my-3">
+            <div className="card-header">
+                <Link to={`/posts/${post.id}`}>
+                    {post.title}
+                </Link>
+            </div>
+            <div className="card-body">
+                <blockquote className="blockquote mb-0">
+                <p>{post.body}</p>
+                <footer className="blockquote-footer">{fullName} <cite title="Source Title">{dateCreated.toLocaleString()}</cite></footer>
+                </blockquote>
+            </div>
+        </div>
+    )
+}
+--------------------------------------------------------------------------------
+
+...> PostDetails.js
+
+import React, { useState, useEffect } from 'react';
+
+
+export const PostDetail = (props) =>{
+    const [post, setPost] = useState({
+        id: null,
+        content: null,
+        title: null,
+        date_created: null
+    });
+    const postId = props.match.params.id;
+    useEffect(() => {
+        fetch(`http://localhost:5000/api/posts/${postId}`)
+        .then(res => res.json())
+        .then(data => setPost(data))
+    }, [])
+    return <div className="card my-3">
+                <div className="card-header">
+                    {post.title}
+                </div>
+                <div className="card-body">
+                    <blockquote className="blockquote mb-0">
+                    <p>{post.content}</p>
+                    <footer className="blockquote-footer"> <cite title="Source Title">{post.date_created}</cite></footer>
+                    </blockquote>
+                </div>
+            </div>
+}
+
+-----------------------------------------------------------------------------
+
+...> UserCard.js
+import React, { Component } from 'react'
+import UserEdit from './UserEdit'
+
+export default class UserCard extends Component {
+    constructor(props){
+        super(props);
+        this.state = {
+            isEditing: false
+        }
+    }
+    handleClick = () =>{
+        const newState = !this.state.isEditing;
+        this.setState({
+            isEditing: newState
+        })
+    }
+    render() {
+        const user = this.props.user
+        return (
+            <div className="card">
+                <div className="card-body">
+                    <h5 className="card-title">{user.username}</h5>
+                    <p className="card-text">{user.email}</p>
+                    {Number(this.props.userId) === user.id ? <button className="btn btn-primary" onClick={this.handleClick}>Edit</button> : null}
+                    {this.state.isEditing ? <UserEdit user={user} updateUser={this.props.updateUser}/> : null}
+                </div>
+            </div>
+        )
+    }
+}
+-----------------------------------------------------------------------------
+
+...> ButtonNameChange.js
+
+import React, { useState } from "react";
+
+export const ButtonNameChange = (props) => {
+    let myName = props.name;
+    const [name, setName] = useState(myName)
+    const handleForm = (e) => {
+        e.preventDefault();
+        console.log(e)
+        const newName = e.target.newName.value;
+        console.log(newName);
+        props.changeName(newName);
+    }
+
+
+    return (
+        <form onSubmit={handleForm}>
+            <div className="mb-3">
+                <label htmlFor="newName" className="form-label">New Name</label>
+                <input type="text" className="form-control" id="newName" value={name} onChange={(e) => setName(e.target.value)}/>
+            </div>
+            <input type='submit' value='Submit' className='btn btn-secondary' />
+        </form>
+    )
+}
+----------------------------------------------------------------------------------
+import React, { Component } from 'react'
+//import UserCard from '../../../my-app/src/components/UserCard';
+
+export default class MyCart extends Component {
+    constructor(props){
+        super(props);
+        this.state = {
+            cart: [],
+            hasBeenUpdated: false
+        }
+    }
+
+    componentDidMount(){
+        fetch('https://kekambas-bs.herokuapp.com/')
+            .then(res => res.json())
+            .then(data => {
+                console.log(data)
+                this.setState({
+                    mycart: data
+                })
+            }
+        )
+    }
+
+    componentDidUpdate(prevProps, prevState){
+        console.log('UPDATE')
+        if (prevState.hasBeenUpdated !== this.state.hasBeenUpdated){
+
+  **        fetch('http://localhost:5000/api/my-cart')  ** I don't think this makes sense?
+                .then(res => res.json())
+                .then(data => {
+                    console.log(data)
+                    this.setState({
+                        mycart: data
+                    })
+                }
+            )
+        }
+    }
+
+    usersHaveBeenUpdated = () =>{
+        this.setState({
+            hasBeenUpdated: !this.state.hasBeenUpdated
+        })
+    }
+
+    render() {
+        return (
+            <div>
+                <h1 className='text-center'>Users</h1>
+                <ul className='list-group'>
+                    {/* INSERT LOGIC FOR CART PRODUCTS FROM API */}
+                </ul>
+
+            </div>
+        )
+    }
+}
+
+------------------------------------------------------------------------------------------------
+import React, { useState, useEffect } from 'react'
+import RacerDetail from '../components/RacerDetail';
+import { RacerForm } from '../components/RacerForm';
+
+export default function Racers(props){
+    const [racers, setRacers] = useState([]);
+    const [season, setSeason] = useState(2021)
+    const [round, setRound] = useState(1)
+
+    useEffect(() => {
+        console.log(season, round)
+        fetch(`http://ergast.com/api/f1/${season}/${round}/driverStandings.json`)
+            .then(res => res.json())
+            .then(data => setRacers(data.MRData.StandingsTable.StandingsLists[0].DriverStandings))
+    }, [season, round])
+
+    const handleForm = (e) => {
+        e.preventDefault();
+        console.log("Handling form!");
+        const seasonInput = e.target.season.value;
+        const roundInput = e.target.round.value
+        setSeason(seasonInput);
+        setRound(roundInput);
+    }
+
+    return (
+        <div>
+            This is the Products Page
+            <ProductsForm handleForm={handleForm}/>
+            {products.length ? 
+                <table className="table table-dark table-striped">
+                <thead>
+                    <tr>
+                        <td>ProductId</td>
+                        <td>Product Name</td>
+                        <td>Price</td>
+                    </tr>
+                </thead>
+                <tbody>
+                    {products.map((p, i) => <ProductDetail key={i} product={p} />)}
+                </tbody>
+            </table>
+            : null}
+            
+        </div>
+    )
+}
+------------------------------------------------------------------------------------------------------
+...> Buttons.js
+
+import React, { Component } from 'react'
+
+export default class Button extends Component {
+    // constructor(props){
+    //     console.log('Component Constructed')
+    //     super(props)
+    //     this.state = {
+    //         count: 0
+    //     }
+    // }
+
+    // handleClick = () => {
+    //     let newCount = this.state.count + 1
+    //     this.setState({
+    //         count: newCount
+    //     })
+    // }
+
+
+    render() {
+        return (
+            <div>
+                <button className='btn btn-primary' onClick={() => this.props.incrementCount(this.props.step)}>+{this.props.step}</button>
+            </div>
+        )
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
